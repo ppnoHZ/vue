@@ -14,9 +14,20 @@
     <div id='app'>
         <input type="text" name="" v-model="message" id="">
         <h1>{{message}}</h1>
+        <message content="hello components!"></message>
+
     </div>
+
+
 </body>
 <script>
+    var Message = Vue.extend({
+        props: ['content'],
+        template: '<h1>{{content}}</h1>'
+    })
+
+    Vue.component('message', Message);
+
     var vm = new Vue({
         el: '#app',
         data: {
