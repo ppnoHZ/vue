@@ -13,27 +13,211 @@
 <body>
     <div id='app'>
         <input type="text" name="" v-model="message" id="">
-        <h1>{{message}}</h1>
-        <message content="hello components!"></message>
 
+        <div style="border:2px solid red" v-on:click="stopPropagation">
+            阻止事件冒泡 v-on:click.stop="alert"
+            <h1 v-on:click.stop="alert">{{message}}</h1>
+        </div>
+        <h1 v-once="name">{{name | uppercase}}</h1>
+        <div style="border:2px solid red">
+            组件
+            <message title="title" content="hello components!"></message>
+        </div>
+        <div style="border:2px solid red">
+            计算属性
+            <label for="">
+                姓：
+                <input type="text" v-model="firstName">
+
+            </label>
+            <label for="">
+                名：
+                <input type="text" v-model="lastName">
+
+            </label>
+            <div>{{fullName}}</div>
+
+        </div>
+
+        <label for="" style="border:2px solid red">
+            Setter
+            <input type="number" v-model="cents">分，转换后{{price}}元
+        </label>
+        <div style="border:2px solid red">
+            表单
+            <formcomponent></formcomponent>
+
+        </div>
     </div>
 
 
 </body>
+<!-- component模板 一个root-->
+<script id='tpl-message' type="x-template">
+    <div>
+            <h4>{{title}}</h4>
+            <h4>{{content}}</h4>
+            <h4>{{desc}}</h4>
+            
+    </div>
+   
+</script>
+
+<!-- component模板 一个root-->
+<script id='tpl-form' type="x-template">
+        <div>
+                <input type="text" v-model="message"/>
+                {{message}}
+                <div>
+                    <label>
+                        <input type="radio" value="male" v-model="gender" />男
+                    </label>
+                    <label>
+                        <input type="radio" value="female" v-model="gender" />女
+                    </label>
+                </div>
+
+               <p> {{gender}}</p>
+               <input type="checkbox" v-model="checked" /> <span>checked : {{ checked }}</span>
+
+
+               <label>
+                   <input type="checkbox" value="1" v-model=" multiChecked">1
+                </label> 
+                <label>
+                    <input type="checkbox" value="2" v-model=" multiChecked">2
+                </label> 
+                <label>
+                    <input type="checkbox" value="3" v-model=" multiChecked">3
+                </lable> 
+                <p>MultiChecked: {{ multiChecked.join('|') }}</p>
+        </div>
+       
+    </script>
+
 <script>
     var Message = Vue.extend({
-        props: ['content'],
-        template: '<h1>{{content}}</h1>'
+        props: ['content', 'title'],
+        data: function () {
+            return {
+                desc: '123'
+            }
+        },
+        init: function () {
+            console.log('init');
+        },
+        created: function () {
+            console.log('created');
+        },
+        beforeCompile: function () {
+            console.log('beforeCompile');
+        },
+        compiled: function () {
+            console.log('compiled');
+        },
+        attached: function () {
+            console.log('attached');
+        },
+        dettached: function () {
+            console.log('dettached');
+        },
+        beforeDestroy: function () {
+            console.log('beforeDestroy');
+        },
+        destroyed: function () {
+            console.log('destroyed');
+        },
+        ready: function () {
+            console.log('ready');
+            // 组件完成后调用$destory()函数，进行销毁
+            this.$destroy();
+        },
+        template: '#tpl-message'
     })
 
+    var FormComponent = Vue.extend({
+        data: function () {
+            return {
+                message: '',
+                gender: '',
+                checked: '',
+                multiChecked: [],
+                selected: '',
+                multiSelected: []
+            }
+        },
+        template: '#tpl-form'
+    })
     Vue.component('message', Message);
+    Vue.component('formcomponent', FormComponent);
 
     var vm = new Vue({
         el: '#app',
         data: {
-            message: 'hello world , I am Vue.js'
+            message: '$emit',
+            name: 'once-bind',
+            firstName: 'zhou',
+            lastName: 'dongdong',
+            cents: 100
+        },
+        methods: {
+            //事件
+            alert: function () {
+                // alert(this.message)
+                //触发事件
+                this.$emit('event.alert');
+            },
+            stopPropagation: function () {
+                alert("stopPropagation")
+            }
+        },
+        computed: {
+            fullName: function () {
+                return this.firstName + ' ' + this.lastName
+            },
+            price: {
+                // 而在使用 Vue.js 的计算属性后，我们可以将 vm.cents 设置为后端所存的数据，计算属 性 price 为前端展示和更新的数据。
+                set: function (newValue) {
+                    this.cents = newValue * 100;
+                },
+                get: function () {
+                    return (this.cents / 100).toFixed(2)
+                }
+            }
+        },
+        beforeCreate: function () {
+            //在实例开始初始化时同步调用。此时数据观测、事件等都尚未初始化
+            console.log('vue beforeCreate')
+        },
+        created: function () {
+            //在实例创建之后调用。此时已完成数据绑定、事件方法
+            console.log('vue created')
+        },
+        beforeMount: function () {
+            //2.0 新增的生命周期钩子，在 mounted 之前运行
+            console.log('vue beforeMount')
+        },
+        mounted: function () {
+            //在编译结束时调用。此时所有指令已生效，数据变化已能触发 DOM 更新，但不保证 $el 已插入文档
+            console.log('vue mounted')
+        },
+        beforeDestroy: function () {
+            //在开始销毁实例时调用，此刻实例仍然有效
+            console.log('vue beforeDestroy')
+
+        },
+        destroyed: function () {
+            //在实例被销毁之后调用。此时所有绑定和实例指令都已经解绑，子实例也被销毁。
+            console.log('vue destroyed')
+
         }
+
     })
+    vm.$on('event.alert', function () {
+        alert('自定义事件')
+    })
+    // vm.$emit('event.alert')
+
 </script>
 
 </html>
