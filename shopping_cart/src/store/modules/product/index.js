@@ -14,7 +14,6 @@ const mutations = {
 const actions = {
     getProductItems({ commit }) {
         Axios.get('/api/products').then((respone) => {
-            console.log(respone);
             commit('UPDATE_PRODUCT_ITEMS', respone.data);
         })
     }
