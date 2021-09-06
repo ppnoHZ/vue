@@ -1,5 +1,6 @@
 <template>
   <div class="day column" @click="setActiveDay(day.id)">
+    testData:{{testData}}
     <div class="day-banner has-text-centered">{{ day.abbvTitle }}</div>
     <div class="day-details">
       <div class="day-number">{{ day.id }}</div>
@@ -13,6 +14,7 @@ import CalendarEvent from "./CalendarEvent.vue";
 import { store } from "../store";
 
 export default {
+  inject:['testData'],
   name: "CalendarDay",
   props: ["day"],
   components: {
